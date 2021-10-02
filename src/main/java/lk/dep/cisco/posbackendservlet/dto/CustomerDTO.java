@@ -1,14 +1,14 @@
 package lk.dep.cisco.posbackendservlet.dto;
 
-public class customerDTO {
+public class CustomerDTO {
     private String id;
     private String name;
     private String address;
 
-    public customerDTO() {
+    public CustomerDTO() {
     }
 
-    public customerDTO(String id, String name, String address) {
+    public CustomerDTO(String id, String name, String address) {
         this.id = id;
         this.name = name;
         this.address = address;
