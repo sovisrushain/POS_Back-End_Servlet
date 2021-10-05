@@ -14,6 +14,7 @@ import lk.dep.cisco.posbackendservlet.util.DBConnection;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -60,7 +61,22 @@ public class ItemServlet extends HttpServlet {
         try(Connection connection = DBConnection.getConnection()){
             /* 3. Bind Json to Java Obj */
             ItemDTO item = jsonb.fromJson(req.getReader(), ItemDTO.class);
-            /* Todo:validation */
+            if(item.getCode() == null || !item.getCode().matches("I\\d{3}")){
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Item can not be empty");
+                return;
+            }
+            if(item.getDescription() == null || item.getDescription().trim().isEmpty()){
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Description can not be empty");
+                return;
+            }
+            if(item.getUnitPrice() == null || item.getUnitPrice().compareTo(new BigDecimal(0)) <= 0){
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid Unit price");
+                return;
+            }
+            if(item.getQtyOnHand() < 0){
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid Qty on hand");
+                return;
+            }
             /* 4. Save the item */
             ItemService itemService = new ItemService(connection);
             item.setUnitPrice(item.getUnitPrice().setScale(2));
@@ -85,7 +101,22 @@ public class ItemServlet extends HttpServlet {
         try(Connection connection = DBConnection.getConnection()) {
             /* 3. Bind Json to Java obj */
             ItemDTO item = jsonb.fromJson(req.getReader(), ItemDTO.class);
-            /* Todo:validation */
+            if(item.getCode() == null || !item.getCode().matches("I\\d{3}")){
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Item can not be empty");
+                return;
+            }
+            if(item.getDescription() == null || item.getDescription().trim().isEmpty()){
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Description can not be empty");
+                return;
+            }
+            if(item.getUnitPrice() == null || item.getUnitPrice().compareTo(new BigDecimal(0)) <= 0){
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid Unit price");
+                return;
+            }
+            if(item.getQtyOnHand() < 0){
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid Qty on hand");
+                return;
+            }
             /* 4. Update the item */
             ItemService itemService = new ItemService(connection);
             itemService.updateItem(item);
