@@ -61,7 +61,18 @@ public class CustomerServlet extends HttpServlet {
             /* 3. Bind Json to Java Obj */
             CustomerDTO customer = jsonb.fromJson(req.getReader(), CustomerDTO.class);
             /* 4. Save the customer */
-            /* ToDo: Validation */
+            if(customer.getId() == null || !customer.getId().matches("C\\d{3}")){
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Customer id can not be empty");
+                return;
+            }
+            if(customer.getName() == null || customer.getName().isEmpty()){
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Customer name can not be empty");
+                return;
+            }
+            if(customer.getAddress() == null || customer.getAddress().isEmpty()){
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Customer address can not be empty");
+                return;
+            }
             CustomerService customerService = new CustomerService(connection);
             customerService.saveCustomer(customer);
             /* 5. Send a response to the client */
@@ -85,7 +96,18 @@ public class CustomerServlet extends HttpServlet {
         /* 3. Connect to the DB */
         try(Connection connection = DBConnection.getConnection()){
             /* 4. Update the customer */
-            /*Todo: validation*/
+            if(customer.getId() == null || !customer.getId().matches("C\\d{3}")){
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Customer id can not be empty");
+                return;
+            }
+            if(customer.getName() == null || customer.getName().isEmpty()){
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Customer name can not be empty");
+                return;
+            }
+            if(customer.getAddress() == null || customer.getAddress().isEmpty()){
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Customer address can not be empty");
+                return;
+            }
             CustomerService customerService = new CustomerService(connection);
             customerService.updateCustomer(customer);
             /* 5. Send the status to client */
