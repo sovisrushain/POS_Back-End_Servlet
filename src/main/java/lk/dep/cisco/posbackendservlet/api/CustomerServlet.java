@@ -45,7 +45,7 @@ public class CustomerServlet extends HttpServlet {
             PrintWriter out = resp.getWriter();
             out.println(json);
         } catch (SQLException | FailedOperationException | NotFoundException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -69,24 +69,53 @@ public class CustomerServlet extends HttpServlet {
             PrintWriter out = resp.getWriter();
             out.println(jsonb.toJson(customer.getId()));
         } catch (SQLException | DuplicateIdentifierException | FailedOperationException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         /* 1. Check weather it is a valid request */
+        if(!req.getContentType().equals("application/json") || req.getContentType() == null){
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
         /* 2. Bind Json to Java obj */
+        CustomerDTO customer = jsonb.fromJson(req.getReader(), CustomerDTO.class);
         /* 3. Connect to the DB */
-        /* 4. Update the customer */
-        /* 5. Send the status to client */
+        try(Connection connection = DBConnection.getConnection()){
+            /* 4. Update the customer */
+            /*Todo: validation*/
+            CustomerService customerService = new CustomerService(connection);
+            customerService.updateCustomer(customer);
+            /* 5. Send the status to client */
+            resp.setContentType("application/json");
+            PrintWriter out = resp.getWriter();
+            out.println(jsonb.toJson(customer.getId()));
+        } catch (SQLException | NotFoundException | FailedOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         /* 1. Check weather the client has sent a valid id */
+        String id = req.getParameter("id");
+        if(id == null || !id.matches("C\\d{3}")){
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
         /* 2. Connect to the DB */
-        /* 3. Delete the customer */
-        /* 4. Send the status to the client */
+        try(Connection connection = DBConnection.getConnection()){
+            /* 3. Delete the customer */
+            CustomerService customerService = new CustomerService(connection);
+            customerService.deleteCustomer(id);
+            /* 4. Send the status to the client */
+            resp.setContentType("application/json");
+            PrintWriter out = resp.getWriter();
+            out.println(jsonb.toJson("OK"));
+        } catch (SQLException | NotFoundException | FailedOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
